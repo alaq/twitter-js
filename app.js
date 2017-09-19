@@ -1,6 +1,25 @@
 const express = require('express');
 const app = express();
+const nunjucks = require('nunjucks');
 
+var locals = {
+  title: 'The Fellowship of the Ring',
+  people: [
+    { name: 'Gandalf' },
+    { name: 'Frodo' },
+    { name: 'Samwise' },
+  ]
+};
+nunjucks.configure('views', { noCache: true });
+// nunjucks.render('index.html', locals, function (err, output) {
+//   if (err) throw new Error(err);
+//   console.log(output);
+// })
+
+app.set('view engine', 'html'); // What does 'view engine' do?
+app.engine('html', nunjucks.render);
+
+// middleware
 app.use(function(req, res, next) {
   console.log(req.method, req.url, res.statusCode);
   next();
@@ -10,6 +29,10 @@ app.use('/special/', function(req, res, next) {
   console.log('Access to all classified and restricted information: GRANTED');
 })
 
-app.get('/', (req, res) => res.send('Welcome!'));
+// render result
+app.get('/', (req, res) => res.render('index', {
+  title: locals.title,
+  people: locals.people,
+}));
 
 app.listen(3000, () => console.log('Server listening...'));
