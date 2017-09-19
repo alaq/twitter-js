@@ -2,6 +2,9 @@ const express = require('express');
 const app = express();
 const nunjucks = require('nunjucks');
 const routes = require('./routes');
+var socketio = require('socket.io');
+var server = app.listen(3000, () => console.log('Server listening...'));
+var io = socketio.listen(server);
 
 var locals = {
   title: 'The Fellowship of the Ring',
@@ -21,7 +24,7 @@ app.set('view engine', 'html'); // What does 'view engine' do?
 app.engine('html', nunjucks.render);
 
 // middleware
-app.use('/', routes);
+app.use('/', routes(io));
 
 app.use(express.static('./public'));
 
@@ -36,5 +39,3 @@ app.use('/special/', function(req, res, next) {
 
 // render result
 app.get('/', (req, res) => res.render('index', locals));
-
-app.listen(3000, () => console.log('Server listening...'));
